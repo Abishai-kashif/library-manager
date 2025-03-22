@@ -1,24 +1,24 @@
 import questionary
-
-books = [
-    {'title': 'the fellowship of the ring', 'author': 'j.r.r. tolkien', 'publication_year': 1954, 'genre': 'fantasy', 'read_status': True},
-    {'title': 'the two towers', 'author': 'j.r.r. tolkien', 'publication_year': 1955, 'genre': 'fantasy', 'read_status': True},
-    {'title': 'the return of the king', 'author': 'j.r.r. tolkien', 'publication_year': 1956, 'genre': 'fantasy', 'read_status': True},
-    {'title': 'the hobbit', 'author': 'j.r.r. tolkien', 'publication_year': 1937, 'genre': 'fantasy', 'read_status': False},
-    {'title': 'the hunger games', 'author': 'suzanne collins', 'publication_year': 2008, 'genre': 'dystopian', 'read_status': False},
-]
+import json
+from  helper.utils import add_line, load_books
 
 
 class MenuOptionsHelper:
 
     @staticmethod
     def displayAllBooks():
+
+        books = load_books()
+
         add_line()
         print('__________________ All Books __________________')
         add_line()
         for idx, book in enumerate(books):
             print(f'{idx + 1}. {book["title"]}')
         add_line(2)
+
+
+            
 
     @staticmethod
     def add_book():
@@ -30,23 +30,44 @@ class MenuOptionsHelper:
             read_status=questionary.confirm("Have you read this book? ", default=True),
         ).ask()
 
+        books = load_books()
+
+
         books.append(book)
+
+
+        with open('data/books.json', 'w', encoding="utf-8") as file:
+            try:
+                json.dump(books, file, indent=4)
+            except Exception as e:
+                print("Something went wrong! when saving books: ", e)
 
         add_line(2)
         print('Book added successfully ✅')
         add_line()
 
     @staticmethod
-    def remove_book():
-        title = questionary.select(
-            'Select the book you want to remove',
+    def remove_books():
+        books = load_books()
+
+        booksToRemove = questionary.checkbox(
+            'Choose the books you want to remove: ',
             choices=[book['title'] for book in books]
         ).ask()
 
-        books.remove([book for book in books if book['title'] == title][0])
+        books = list(filter(lambda book: book["title"] not in (booksToRemove or []), books))
+
+
+        with open('data/books.json', 'w', encoding="utf-8") as file:
+            try:
+                json.dump(books, file, indent=4)
+            except Exception as e:
+                print("Something went wrong! when saving books: ", e)
+
+
 
         add_line(2)
-        print('Book removed successfully 🚮')
+        print('Books removed successfully 🚮')
         add_line()
 
     @staticmethod
@@ -61,6 +82,8 @@ class MenuOptionsHelper:
         add_line(2)
 
         term = search_term.lower().strip()
+
+        books = load_books()
         
         results = [book for book in books if book[search_by].lower().strip().startswith(term)]
 
@@ -75,10 +98,10 @@ class MenuOptionsHelper:
 
     @staticmethod
     def displayStatistics():
+        books = load_books()
+
         total_books = len(books)
-        # This will calculate the percentage of books that have been read
-        # by dividing the number of books that have been read by the total number of books
-        # and then multiplying by 100
+        
         percentage_read: int = (len([ book for book in books if book['read_status'] ]) / total_books) * 100
 
         add_line()
@@ -86,7 +109,3 @@ class MenuOptionsHelper:
         print(f'Total Books: { total_books }')
         print(f'Percentage read: { percentage_read.__round__(2)  }%')
         add_line()
-
-
-def add_line(no_of_lines=1):
-    print('\n' * no_of_lines)

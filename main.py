@@ -16,15 +16,16 @@ def main():
         if answer == 'Add a Book':
             MenuOptionsHelper.add_book()
         elif answer == 'Remove a Book':
-            MenuOptionsHelper.remove_book()
+            MenuOptionsHelper.remove_books()
         elif answer == 'Search for a Book':
             MenuOptionsHelper.search_book()
-        # elif answer == 'Remove a Book':
-        #     MenuOptionsHelper.remove_book()
         elif answer == 'Display all Books':
             MenuOptionsHelper.displayAllBooks()
         elif answer == 'Display statistics':
             MenuOptionsHelper.displayStatistics()
         else:
             break
+
+
+
 main()
